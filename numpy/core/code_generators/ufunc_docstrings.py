@@ -963,6 +963,11 @@ add_newdoc('numpy.core.umath', 'heaviside',
     array([ 0.,  1.,  1.])
     """)
 
+add_newdoc('numpy.core.umath', 'sum_multiply',
+    """
+    Compute a simple dot product
+    """)
+
 add_newdoc('numpy.core.umath', 'divide',
     """
     Divide arguments element-wise.

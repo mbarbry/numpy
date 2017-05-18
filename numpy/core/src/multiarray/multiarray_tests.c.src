@@ -1477,7 +1477,6 @@ extint_gt_128(PyObject *NPY_UNUSED(self), PyObject *args) {
     }
 }
 
-
 static PyObject *
 extint_divmod_128_64(PyObject *NPY_UNUSED(self), PyObject *args) {
     PyObject *a_obj, *ret = NULL, *tmp = NULL;
@@ -1517,7 +1516,6 @@ fail:
     Py_XDECREF(tmp);
     return NULL;
 }
-
 
 static PyObject *
 extint_floordiv_128_64(PyObject *NPY_UNUSED(self), PyObject *args) {

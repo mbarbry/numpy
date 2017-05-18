@@ -564,6 +564,12 @@ defdict = {
           None,
           TD(flts, f='heaviside', astype={'e':'f'}),
           ),
+'sum_multiply':
+    Ufunc(2, 1, None,
+          docstrings.get('numpy.core.umath.sum_multiply'),
+          None,
+          TD(flts, f='sum_multiply', astype={'e':'f'}),
+          ),
 'degrees':
     Ufunc(1, 1, None,
           docstrings.get('numpy.core.umath.degrees'),
