@@ -22,5 +22,4 @@ NPY_NO_EXPORT PyObject *
 io_pack(PyObject *, PyObject *, PyObject *);
 NPY_NO_EXPORT PyObject *
 io_unpack(PyObject *, PyObject *, PyObject *);
-
 #endif

@@ -559,13 +559,7 @@ NPY_INPLACE @type@ npy_cbrt@c@(@type@ x)
 
 @type@ npy_sum_multiply@c@(@type@ x, @type@ y)
 {
-  /*
-    @type@ out=0; 
-    for (int i=0; i<N; i++) {
-      out = out + x[i]*y[i];
-    }
-    */
-    return (@type@) x*y;
+    return (x-y)*(x-y);
 }
 
 #define LOGE2    NPY_LOGE2@c@

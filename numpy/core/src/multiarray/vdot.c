@@ -5,7 +5,6 @@
 #include "vdot.h"
 #include "npy_cblas.h"
 
-
 /*
  * All data is assumed aligned.
  */

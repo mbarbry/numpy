@@ -57,6 +57,7 @@ NPY_NO_EXPORT int NPY_NUMUSERTYPES = 0;
 #include "multiarraymodule.h"
 #include "cblasfuncs.h"
 #include "vdot.h"
+#include "vdot_add.h"
 #include "templ_common.h" /* for npy_mul_with_overflow_intp */
 #include "compiled_base.h"
 #include "mem_overlap.h"
@@ -2201,7 +2202,6 @@ array_matrixproduct(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject* kwds)
     return PyArray_Return(ret);
 }
 
-
 static PyObject *
 array_vdot(PyObject *NPY_UNUSED(dummy), PyObject *args)
 {
@@ -2314,6 +2314,133 @@ fail:
     return NULL;
 }
 
+
+static PyObject *
+array_vdot_add(PyObject *NPY_UNUSED(dummy), PyObject *args)
+{
+    int typenum;
+    char *ip1, *ip2, *op;
+    npy_intp n, stride1, stride2;
+    PyObject *op1, *op2;
+    npy_intp newdimptr[1] = {-1};
+    npy_intp newdimptr_ip2[1] = {-1};
+    PyArray_Dims newdims = {newdimptr, 1};
+    PyArray_Dims newdims_ip2 = {newdimptr_ip2, 1};
+    PyArrayObject *ap1 = NULL, *ap2  = NULL, *ret = NULL;
+    PyArray_Descr *type;
+    PyArray_DotFunc *vdot_add;
+    NPY_BEGIN_THREADS_DEF;
+
+    if (!PyArg_ParseTuple(args, "OO:vdot_add", &op1, &op2)) {
+        return NULL;
+    }
+
+    /*
+     * Conjugating dot product using the BLAS for vectors.
+     * Flattens both op1 and op2 before dotting.
+     */
+    typenum = PyArray_ObjectType(op1, 0);
+    typenum = PyArray_ObjectType(op2, typenum);
+    type = PyArray_DescrFromType(typenum);
+
+    Py_INCREF(type);
+    ap1 = (PyArrayObject *)PyArray_FromAny(op1, type, 0, 0, 0, NULL);
+    if (ap1 == NULL) {
+        Py_DECREF(type);
+        goto fail;
+    }
+
+    op1 = PyArray_Newshape(ap1, &newdims, NPY_CORDER);
+    if (op1 == NULL) {
+        Py_DECREF(type);
+        goto fail;
+    }
+    Py_DECREF(ap1);
+    ap1 = (PyArrayObject *)op1;
+
+    ap2 = (PyArrayObject *)PyArray_FromAny(op2, type, 0, 0, 0, NULL);
+    if (ap2 == NULL) {
+        goto fail;
+    }
+    op2 = PyArray_Newshape(ap2, &newdims_ip2, NPY_CORDER);
+    if (op2 == NULL) {
+        goto fail;
+    }
+    Py_DECREF(ap2);
+    ap2 = (PyArrayObject *)op2;
+
+
+    /* array scalar output */
+    ret = new_array_for_sum(ap1, ap2, NULL, 0, (npy_intp *)NULL, typenum, NULL);
+    if (ret == NULL) {
+        goto fail;
+    }
+
+    n = PyArray_DIM(ap1, 0);
+    stride1 = PyArray_STRIDE(ap1, 0);
+    stride2 = PyArray_STRIDE(ap2, 0);
+    ip1 = PyArray_DATA(ap1);
+    ip2 = PyArray_DATA(ap2);
+    op = PyArray_DATA(ret);
+
+    switch (typenum) {
+      /*
+        case NPY_INT_SHORT:
+        case NPY_INT:
+        case NPY_INT_LONG:
+        case NPY_INT_LONGLONG:
+      */
+        case NPY_FLOAT:
+            vdot_add = (PyArray_DotFunc *)FLOAT_vdot_add;
+            break;
+        case NPY_DOUBLE:
+            vdot_add = (PyArray_DotFunc *)DOUBLE_vdot_add;
+            break;
+        case NPY_LONGDOUBLE:
+            vdot_add = (PyArray_DotFunc *)LONGDOUBLE_vdot_add;
+            break;
+        case NPY_CFLOAT:
+            vdot_add = (PyArray_DotFunc *)CFLOAT_vdot_add;
+            break;
+        case NPY_CDOUBLE:
+            vdot_add = (PyArray_DotFunc *)CDOUBLE_vdot_add;
+            break;
+        case NPY_CLONGDOUBLE:
+            vdot_add = (PyArray_DotFunc *)CLONGDOUBLE_vdot_add;
+            break;
+            /*
+        case NPY_OBJECT:
+            vdot_add = (PyArray_DotFunc *)OBJECT_vdot_add;
+            break;
+            */
+        default:
+            printf("default\n");
+            vdot_add = NULL;//type->f->dotaddfunc;
+            if (vdot_add == NULL) {
+                PyErr_SetString(PyExc_ValueError,
+                        "function not available for this data type");
+                goto fail;
+            }
+    }
+
+    if (n < 500) {
+        vdot_add(ip1, stride1, ip2, stride2, op, n, NULL);
+    }
+    else {
+        NPY_BEGIN_THREADS_DESCR(type);
+        vdot_add(ip1, stride1, ip2, stride2, op, n, NULL);
+        NPY_END_THREADS_DESCR(type);
+    }
+
+    Py_XDECREF(ap1);
+    Py_XDECREF(ap2);
+    return PyArray_Return(ret);
+fail:
+    Py_XDECREF(ap1);
+    Py_XDECREF(ap2);
+    Py_XDECREF(ret);
+    return NULL;
+}
 
 
 /*
@@ -4155,6 +4282,9 @@ static struct PyMethodDef array_module_methods[] = {
         METH_VARARGS | METH_KEYWORDS, NULL},
     {"vdot",
         (PyCFunction)array_vdot,
+        METH_VARARGS | METH_KEYWORDS, NULL},
+    {"vdot_add",
+        (PyCFunction)array_vdot_add,
         METH_VARARGS | METH_KEYWORDS, NULL},
     {"matmul",
         (PyCFunction)array_matmul,

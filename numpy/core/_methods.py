@@ -12,6 +12,8 @@ from numpy.core import umath as um
 from numpy.core.numeric import asanyarray
 from numpy.core import numerictypes as nt
 
+from memory_profiler import profile
+
 # save those O(100) nanoseconds!
 umr_maximum = um.maximum.reduce
 umr_minimum = um.minimum.reduce
@@ -83,6 +85,7 @@ def _mean(a, axis=None, dtype=None, out=None, keepdims=False):
 
     return ret
 
+@profile(precision=8)
 def _var(a, axis=None, dtype=None, out=None, ddof=0, keepdims=False):
     arr = asanyarray(a)
 
@@ -109,13 +112,16 @@ def _var(a, axis=None, dtype=None, out=None, ddof=0, keepdims=False):
     # Compute sum of squared deviations from mean
     # Note that x may not be inexact and that we need it to be an array,
     # not a scalar.
-    x = asanyarray(arr - arrmean)
-    if issubclass(arr.dtype.type, nt.complexfloating):
-        x = um.multiply(x, um.conjugate(x), out=x).real
-    else:
-        x = um.multiply(x, x, out=x)
-    ret = umr_sum(x, axis, dtype, out, keepdims)
+    #x = asanyarray(arr - arrmean)
+    #if issubclass(arr.dtype.type, nt.complexfloating):
+    #    x = um.multiply(x, um.conjugate(x), out=x).real
+    #else:
+    #    x = um.multiply(x, x, out=x)
+    #ret_ref = umr_sum(x, axis, dtype, out, keepdims)
 
+    # Compute sum of squared deviations from mean
+    ret = mu.vdot_add(arr, -arrmean)
+    # print("Error: ", abs(ret-ret_ref))
     # Compute degrees of freedom and make sure it is not negative.
     rcount = max([rcount - ddof, 0])
 
