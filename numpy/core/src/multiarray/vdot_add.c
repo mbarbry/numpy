@@ -12,6 +12,57 @@
  * All data is assumed aligned.
  */
 NPY_NO_EXPORT void
+SHORT_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
+    char *op, npy_intp n, void *NPY_UNUSED(ignore))
+{
+    short sum = (short)0;
+    const short ip2r = ((short *)ip2)[0];
+    npy_intp i;
+
+
+    for (i = 0; i < n; i++, ip1 += is1) {
+        const short ip1r = ((short *)ip1)[0] + ip2r;
+
+        sum += ip1r * ip1r;
+    }
+    ((short *)op)[0] = sum;
+}
+
+NPY_NO_EXPORT void
+INT_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
+    char *op, npy_intp n, void *NPY_UNUSED(ignore))
+{
+    int sum = (int)0;
+    const int ip2r = ((int *)ip2)[0];
+    npy_intp i;
+
+
+    for (i = 0; i < n; i++, ip1 += is1) {
+        const int ip1r = ((int *)ip1)[0] + ip2r;
+
+        sum += ip1r * ip1r;
+    }
+    ((int *)op)[0] = sum;
+}
+
+NPY_NO_EXPORT void
+LONG_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
+    char *op, npy_intp n, void *NPY_UNUSED(ignore))
+{
+    long sum = (long)0;
+    const long ip2r = ((long *)ip2)[0];
+    npy_intp i;
+
+
+    for (i = 0; i < n; i++, ip1 += is1) {
+        const long ip1r = ((long *)ip1)[0] + ip2r;
+
+        sum += ip1r * ip1r;
+    }
+    ((long *)op)[0] = sum;
+}
+
+NPY_NO_EXPORT void
 FLOAT_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
     char *op, npy_intp n, void *NPY_UNUSED(ignore))
 {

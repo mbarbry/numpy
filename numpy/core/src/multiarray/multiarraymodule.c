@@ -2384,12 +2384,15 @@ array_vdot_add(PyObject *NPY_UNUSED(dummy), PyObject *args)
     op = PyArray_DATA(ret);
 
     switch (typenum) {
-      /*
-        case NPY_INT_SHORT:
+        case NPY_SHORT:
+            vdot_add = (PyArray_DotFunc *)SHORT_vdot_add;
+            break;
         case NPY_INT:
-        case NPY_INT_LONG:
-        case NPY_INT_LONGLONG:
-      */
+            vdot_add = (PyArray_DotFunc *)INT_vdot_add;
+            break;
+        case NPY_LONG:
+            vdot_add = (PyArray_DotFunc *)LONG_vdot_add;
+            break;
         case NPY_FLOAT:
             vdot_add = (PyArray_DotFunc *)FLOAT_vdot_add;
             break;

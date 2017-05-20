@@ -4,6 +4,15 @@
 #include "common.h"
 
 NPY_NO_EXPORT void
+SHORT_vdot_add(char *, npy_intp, char *, npy_intp, char *, npy_intp, void *);
+
+NPY_NO_EXPORT void
+INT_vdot_add(char *, npy_intp, char *, npy_intp, char *, npy_intp, void *);
+
+NPY_NO_EXPORT void
+LONG_vdot_add(char *, npy_intp, char *, npy_intp, char *, npy_intp, void *);
+
+NPY_NO_EXPORT void
 FLOAT_vdot_add(char *, npy_intp, char *, npy_intp, char *, npy_intp, void *);
 
 NPY_NO_EXPORT void
