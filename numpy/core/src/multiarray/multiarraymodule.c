@@ -2316,7 +2316,7 @@ fail:
 
 
 static PyObject *
-array_vdot_add(PyObject *NPY_UNUSED(dummy), PyObject *args)
+array_vdot_add(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *kwds)
 {
     int typenum;
     char *ip1, *ip2, *op;
@@ -2328,12 +2328,23 @@ array_vdot_add(PyObject *NPY_UNUSED(dummy), PyObject *args)
     PyArray_Dims newdims_ip2 = {newdimptr_ip2, 1};
     PyArrayObject *ap1 = NULL, *ap2  = NULL, *ret = NULL;
     PyArray_Descr *type;
-    PyArray_DotFunc *vdot_add;
+    PyArray_DotFuncAdd *vdot_add;
     NPY_BEGIN_THREADS_DEF;
+    int axis = 0;
+    static char *kwlist[] = {"seq1", "seq2", "axis", NULL};
 
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|O&:vdot_add", kwlist, &op1, &op2,
+          PyArray_AxisConverter, &axis)) {
+        return NULL;
+    }
+    /*
     if (!PyArg_ParseTuple(args, "OO:vdot_add", &op1, &op2)) {
         return NULL;
     }
+    */
+
+
+    printf("axis = %d\n", axis);
 
     /*
      * Conjugating dot product using the BLAS for vectors.
@@ -2385,31 +2396,31 @@ array_vdot_add(PyObject *NPY_UNUSED(dummy), PyObject *args)
 
     switch (typenum) {
         case NPY_SHORT:
-            vdot_add = (PyArray_DotFunc *)SHORT_vdot_add;
+            vdot_add = (PyArray_DotFuncAdd *)SHORT_vdot_add;
             break;
         case NPY_INT:
-            vdot_add = (PyArray_DotFunc *)INT_vdot_add;
+            vdot_add = (PyArray_DotFuncAdd *)INT_vdot_add;
             break;
         case NPY_LONG:
-            vdot_add = (PyArray_DotFunc *)LONG_vdot_add;
+            vdot_add = (PyArray_DotFuncAdd *)LONG_vdot_add;
             break;
         case NPY_FLOAT:
-            vdot_add = (PyArray_DotFunc *)FLOAT_vdot_add;
+            vdot_add = (PyArray_DotFuncAdd *)FLOAT_vdot_add;
             break;
         case NPY_DOUBLE:
-            vdot_add = (PyArray_DotFunc *)DOUBLE_vdot_add;
+            vdot_add = (PyArray_DotFuncAdd *)DOUBLE_vdot_add;
             break;
         case NPY_LONGDOUBLE:
-            vdot_add = (PyArray_DotFunc *)LONGDOUBLE_vdot_add;
+            vdot_add = (PyArray_DotFuncAdd *)LONGDOUBLE_vdot_add;
             break;
         case NPY_CFLOAT:
-            vdot_add = (PyArray_DotFunc *)CFLOAT_vdot_add;
+            vdot_add = (PyArray_DotFuncAdd *)CFLOAT_vdot_add;
             break;
         case NPY_CDOUBLE:
-            vdot_add = (PyArray_DotFunc *)CDOUBLE_vdot_add;
+            vdot_add = (PyArray_DotFuncAdd *)CDOUBLE_vdot_add;
             break;
         case NPY_CLONGDOUBLE:
-            vdot_add = (PyArray_DotFunc *)CLONGDOUBLE_vdot_add;
+            vdot_add = (PyArray_DotFuncAdd *)CLONGDOUBLE_vdot_add;
             break;
             /*
         case NPY_OBJECT:
@@ -2427,11 +2438,11 @@ array_vdot_add(PyObject *NPY_UNUSED(dummy), PyObject *args)
     }
 
     if (n < 500) {
-        vdot_add(ip1, stride1, ip2, stride2, op, n, NULL);
+        vdot_add(ip1, stride1, ip2, stride2, op, n, NULL, axis);
     }
     else {
         NPY_BEGIN_THREADS_DESCR(type);
-        vdot_add(ip1, stride1, ip2, stride2, op, n, NULL);
+        vdot_add(ip1, stride1, ip2, stride2, op, n, NULL, axis);
         NPY_END_THREADS_DESCR(type);
     }
 

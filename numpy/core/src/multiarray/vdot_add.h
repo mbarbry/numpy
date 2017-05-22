@@ -4,31 +4,31 @@
 #include "common.h"
 
 NPY_NO_EXPORT void
-SHORT_vdot_add(char *, npy_intp, char *, npy_intp, char *, npy_intp, void *);
+SHORT_vdot_add(char *, npy_intp, char *, npy_intp, char *, npy_intp, void *, npy_intp);
 
 NPY_NO_EXPORT void
-INT_vdot_add(char *, npy_intp, char *, npy_intp, char *, npy_intp, void *);
+INT_vdot_add(char *, npy_intp, char *, npy_intp, char *, npy_intp, void *, npy_intp);
 
 NPY_NO_EXPORT void
-LONG_vdot_add(char *, npy_intp, char *, npy_intp, char *, npy_intp, void *);
+LONG_vdot_add(char *, npy_intp, char *, npy_intp, char *, npy_intp, void *, npy_intp);
 
 NPY_NO_EXPORT void
-FLOAT_vdot_add(char *, npy_intp, char *, npy_intp, char *, npy_intp, void *);
+FLOAT_vdot_add(char *, npy_intp, char *, npy_intp, char *, npy_intp, void *, npy_intp);
 
 NPY_NO_EXPORT void
-DOUBLE_vdot_add(char *, npy_intp, char *, npy_intp, char *, npy_intp, void *);
+DOUBLE_vdot_add(char *, npy_intp, char *, npy_intp, char *, npy_intp, void *, npy_intp);
 
 NPY_NO_EXPORT void
-LONGDOUBLE_vdot_add(char *, npy_intp, char *, npy_intp, char *, npy_intp, void *);
+LONGDOUBLE_vdot_add(char *, npy_intp, char *, npy_intp, char *, npy_intp, void *, npy_intp);
 
 NPY_NO_EXPORT void
-CFLOAT_vdot_add(char *, npy_intp, char *, npy_intp, char *, npy_intp, void *);
+CFLOAT_vdot_add(char *, npy_intp, char *, npy_intp, char *, npy_intp, void *, npy_intp);
 
 NPY_NO_EXPORT void
-CDOUBLE_vdot_add(char *, npy_intp, char *, npy_intp, char *, npy_intp, void *);
+CDOUBLE_vdot_add(char *, npy_intp, char *, npy_intp, char *, npy_intp, void *, npy_intp);
 
 NPY_NO_EXPORT void
-CLONGDOUBLE_vdot_add(char *, npy_intp, char *, npy_intp, char *, npy_intp, void *);
+CLONGDOUBLE_vdot_add(char *, npy_intp, char *, npy_intp, char *, npy_intp, void *, npy_intp);
 
 //NPY_NO_EXPORT void
 //OBJECT_vdot_add(char *, npy_intp, char *, npy_intp, char *, npy_intp, void *);

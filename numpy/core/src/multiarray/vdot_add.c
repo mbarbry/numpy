@@ -13,7 +13,7 @@
  */
 NPY_NO_EXPORT void
 SHORT_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
-    char *op, npy_intp n, void *NPY_UNUSED(ignore))
+    char *op, npy_intp n, void *NPY_UNUSED(ignore), npy_intp axis)
 {
     short sum = (short)0;
     const short ip2r = ((short *)ip2)[0];
@@ -30,7 +30,7 @@ SHORT_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
 
 NPY_NO_EXPORT void
 INT_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
-    char *op, npy_intp n, void *NPY_UNUSED(ignore))
+    char *op, npy_intp n, void *NPY_UNUSED(ignore), npy_intp axis)
 {
     int sum = (int)0;
     const int ip2r = ((int *)ip2)[0];
@@ -47,7 +47,7 @@ INT_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
 
 NPY_NO_EXPORT void
 LONG_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
-    char *op, npy_intp n, void *NPY_UNUSED(ignore))
+    char *op, npy_intp n, void *NPY_UNUSED(ignore), npy_intp axis)
 {
     long sum = (long)0;
     const long ip2r = ((long *)ip2)[0];
@@ -64,7 +64,7 @@ LONG_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
 
 NPY_NO_EXPORT void
 FLOAT_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
-    char *op, npy_intp n, void *NPY_UNUSED(ignore))
+    char *op, npy_intp n, void *NPY_UNUSED(ignore), npy_intp axis)
 {
     float sum = (float)0.0;
     const float ip2r = ((float *)ip2)[0];
@@ -81,7 +81,7 @@ FLOAT_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
 
 NPY_NO_EXPORT void
 DOUBLE_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
-    char *op, npy_intp n, void *NPY_UNUSED(ignore))
+    char *op, npy_intp n, void *NPY_UNUSED(ignore), npy_intp axis)
 {
     double sum = (double)0.0;
     const double ip2r = ((double *)ip2)[0];
@@ -98,7 +98,7 @@ DOUBLE_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
 
 NPY_NO_EXPORT void
 LONGDOUBLE_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
-    char *op, npy_intp n, void *NPY_UNUSED(ignore))
+    char *op, npy_intp n, void *NPY_UNUSED(ignore), npy_intp axis)
 {
     npy_longdouble sum = (npy_longdouble)0.0;
     const npy_longdouble ip2r = ((npy_longdouble *)ip2)[0];
@@ -118,7 +118,7 @@ LONGDOUBLE_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
  */
 NPY_NO_EXPORT void
 CFLOAT_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
-    char *op, npy_intp n, void *NPY_UNUSED(ignore))
+    char *op, npy_intp n, void *NPY_UNUSED(ignore), npy_intp axis)
 {
     float sumr = (float)0.0;
     float sumi = (float)0.0;
@@ -144,7 +144,7 @@ CFLOAT_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
  */
 NPY_NO_EXPORT void
 CDOUBLE_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
-             char *op, npy_intp n, void *NPY_UNUSED(ignore))
+             char *op, npy_intp n, void *NPY_UNUSED(ignore), npy_intp axis)
 {
     double sumr = (double)0.0;
     double sumi = (double)0.0;
@@ -171,7 +171,7 @@ CDOUBLE_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
  */
 NPY_NO_EXPORT void
 CLONGDOUBLE_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
-                 char *op, npy_intp n, void *NPY_UNUSED(ignore))
+                 char *op, npy_intp n, void *NPY_UNUSED(ignore), npy_intp axis)
 {
     npy_longdouble tmpr = 0.0L;
     npy_longdouble tmpi = 0.0L;

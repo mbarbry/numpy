@@ -120,10 +120,11 @@ def _var(a, axis=None, dtype=None, out=None, ddof=0, keepdims=False):
     #ret = umr_sum(x, axis, dtype, out, keepdims)
 
     # Compute sum of squared deviations from mean
-    if axis is None:
-        ret = mu.vdot_add(arr, -arrmean)
-    else:
-        raise ValueError("To come")
+#    if axis is None or len(arr.shape) == 1:
+    ret = mu.vdot_add(arr, -arrmean)
+#    else:
+#        if len(arr.shape) == 2:
+#        raise ValueError("To come")
     #    ret = np.zeros(())
     # print("Error: ", abs(ret-ret_ref))
     # Compute degrees of freedom and make sure it is not negative.
