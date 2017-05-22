@@ -395,8 +395,8 @@ typedef int (PyArray_ArgFunc)(void*, npy_intp, npy_intp*, void *);
 typedef void (PyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *,
                                npy_intp, void *);
 
-typedef void (PyArray_DotFuncAdd)(void *, npy_intp, void *, npy_intp, void *,
-                               npy_intp, void *, npy_intp);
+typedef void (PyArray_DotFuncAdd)(void *, npy_intp, void *, npy_intp, void *);
+
 typedef void (PyArray_VectorUnaryFunc)(void *, void *, npy_intp, void *,
                                        void *);
 

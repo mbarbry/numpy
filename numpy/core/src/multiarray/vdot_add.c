@@ -7,107 +7,221 @@
 
 
 /*
+ * Custom sum to calculate mean value
+*/
+void SHORT_calc_sum(char *ip1, npy_intp is1, npy_intp n, short *arrmean)
+{
+    npy_intp i;
+
+    for (i = 0; i < n; i++, ip1 += is1) {
+        const short ip1r = ((short *)ip1)[0];
+        arrmean[0] += ip1r;
+    }
+}
+
+void INT_calc_sum(char *ip1, npy_intp is1, npy_intp n, int *arrmean)
+{
+    npy_intp i;
+
+    for (i = 0; i < n; i++, ip1 += is1) {
+        const int ip1r = ((int *)ip1)[0];
+        arrmean[0] += ip1r;
+    }
+}
+
+void LONG_calc_sum(char *ip1, npy_intp is1, npy_intp n, long *arrmean)
+{
+    npy_intp i;
+
+    for (i = 0; i < n; i++, ip1 += is1) {
+        const long ip1r = ((long *)ip1)[0];
+        arrmean[0] += ip1r;
+    }
+}
+
+void FLOAT_calc_sum(char *ip1, npy_intp is1, npy_intp n, float *arrmean)
+{
+    npy_intp i;
+
+    for (i = 0; i < n; i++, ip1 += is1) {
+        const float ip1r = ((float *)ip1)[0];
+        arrmean[0] += ip1r;
+    }
+}
+
+void DOUBLE_calc_sum(char *ip1, npy_intp is1, npy_intp n, double *arrmean)
+{
+    npy_intp i;
+
+    for (i = 0; i < n; i++, ip1 += is1) {
+        const double ip1r = ((double *)ip1)[0];
+        arrmean[0] += ip1r;
+    }
+}
+
+void LONGDOUBLE_calc_sum(char *ip1, npy_intp is1, npy_intp n, npy_longdouble *arrmean)
+{
+    npy_intp i;
+
+    for (i = 0; i < n; i++, ip1 += is1) {
+        const npy_longdouble ip1r = ((npy_longdouble *)ip1)[0];
+        arrmean[0] += ip1r;
+    }
+}
+
+void CFLOAT_calc_sum(char *ip1, npy_intp is1, npy_intp n, float *arrmean)
+{
+    npy_intp i;
+
+    for (i = 0; i < n; i++, ip1 += is1) {
+        const float ip1r = ((float *)ip1)[0];
+        const float ip1i = ((float *)ip1)[1];
+        arrmean[0] += ip1r;
+        arrmean[1] += ip1i;
+    }
+}
+
+void CDOUBLE_calc_sum(char *ip1, npy_intp is1, npy_intp n, double *arrmean)
+{
+    npy_intp i;
+
+    for (i = 0; i < n; i++, ip1 += is1) {
+        const double ip1r = ((double *)ip1)[0];
+        const double ip1i = ((double *)ip1)[1];
+        arrmean[0] += ip1r;
+        arrmean[1] += ip1i;
+    }
+}
+
+void CLONGDOUBLE_calc_sum(char *ip1, npy_intp is1, npy_intp n, npy_longdouble *arrmean)
+{
+    npy_intp i;
+
+    for (i = 0; i < n; i++, ip1 += is1) {
+        const npy_longdouble ip1r = ((npy_longdouble *)ip1)[0];
+        const npy_longdouble ip1i = ((npy_longdouble *)ip1)[1];
+        arrmean[0] += ip1r;
+        arrmean[1] += ip1i;
+    }
+}
+
+/*
  * vdot_add
  * perform a dot product and adding a scalr to the array
  * All data is assumed aligned.
  */
 NPY_NO_EXPORT void
-SHORT_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
-    char *op, npy_intp n, void *NPY_UNUSED(ignore), npy_intp axis)
+SHORT_vdot_add(char *ip1, npy_intp is1,
+    char *op, npy_intp n, void *NPY_UNUSED(ignore))
 {
     short sum = (short)0;
-    const short ip2r = ((short *)ip2)[0];
+    short arrmean[1];
+    arrmean[0] = (short)0;
     npy_intp i;
 
+    SHORT_calc_sum(ip1, is1, n, arrmean);
+    arrmean[0] /= n;
 
     for (i = 0; i < n; i++, ip1 += is1) {
-        const short ip1r = ((short *)ip1)[0] + ip2r;
-
+        const short ip1r = ((short *)ip1)[0] - arrmean[0];
         sum += ip1r * ip1r;
     }
     ((short *)op)[0] = sum;
 }
 
 NPY_NO_EXPORT void
-INT_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
-    char *op, npy_intp n, void *NPY_UNUSED(ignore), npy_intp axis)
+INT_vdot_add(char *ip1, npy_intp is1,
+    char *op, npy_intp n, void *NPY_UNUSED(ignore))
 {
     int sum = (int)0;
-    const int ip2r = ((int *)ip2)[0];
+    int arrmean[1];
+    arrmean[0] = (int)0;
     npy_intp i;
+
+    INT_calc_sum(ip1, is1, n, arrmean);
+    arrmean[0] /= n;
 
 
     for (i = 0; i < n; i++, ip1 += is1) {
-        const int ip1r = ((int *)ip1)[0] + ip2r;
-
+        const int ip1r = ((int *)ip1)[0] - arrmean[0];
         sum += ip1r * ip1r;
     }
     ((int *)op)[0] = sum;
 }
 
 NPY_NO_EXPORT void
-LONG_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
-    char *op, npy_intp n, void *NPY_UNUSED(ignore), npy_intp axis)
+LONG_vdot_add(char *ip1, npy_intp is1,
+    char *op, npy_intp n, void *NPY_UNUSED(ignore))
 {
     long sum = (long)0;
-    const long ip2r = ((long *)ip2)[0];
+    long arrmean[1];
+    arrmean[0] = (long)0;
     npy_intp i;
 
+    LONG_calc_sum(ip1, is1, n, arrmean);
+    arrmean[0] /= n;
 
     for (i = 0; i < n; i++, ip1 += is1) {
-        const long ip1r = ((long *)ip1)[0] + ip2r;
-
+        const long ip1r = ((long *)ip1)[0] - arrmean[0];
         sum += ip1r * ip1r;
     }
     ((long *)op)[0] = sum;
 }
 
 NPY_NO_EXPORT void
-FLOAT_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
-    char *op, npy_intp n, void *NPY_UNUSED(ignore), npy_intp axis)
+FLOAT_vdot_add(char *ip1, npy_intp is1,
+    char *op, npy_intp n, void *NPY_UNUSED(ignore))
 {
     float sum = (float)0.0;
-    const float ip2r = ((float *)ip2)[0];
+    float arrmean[1];
+    arrmean[0] = (float)0.0;
     npy_intp i;
+
+    FLOAT_calc_sum(ip1, is1, n, arrmean);
+    arrmean[0] /= n;
+
 
 
     for (i = 0; i < n; i++, ip1 += is1) {
-        const float ip1r = ((float *)ip1)[0] + ip2r;
-
+        const float ip1r = ((float *)ip1)[0] - arrmean[0];
         sum += ip1r * ip1r;
     }
     ((float *)op)[0] = sum;
 }
 
 NPY_NO_EXPORT void
-DOUBLE_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
-    char *op, npy_intp n, void *NPY_UNUSED(ignore), npy_intp axis)
+DOUBLE_vdot_add(char *ip1, npy_intp is1,
+    char *op, npy_intp n, void *NPY_UNUSED(ignore))
 {
     double sum = (double)0.0;
-    const double ip2r = ((double *)ip2)[0];
+    double arrmean[1];
+    arrmean[0] = (double)0.0;
     npy_intp i;
 
+    DOUBLE_calc_sum(ip1, is1, n, arrmean);
+    arrmean[0] /= n;
 
     for (i = 0; i < n; i++, ip1 += is1) {
-        const double ip1r = ((double *)ip1)[0] + ip2r;
-
-        sum += ip1r * ip1r;
+        const double ip1r = ((double *)ip1)[0] - arrmean[0];
+        sum += (ip1r) * (ip1r);
     }
     ((double *)op)[0] = sum;
 }
 
 NPY_NO_EXPORT void
-LONGDOUBLE_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
-    char *op, npy_intp n, void *NPY_UNUSED(ignore), npy_intp axis)
+LONGDOUBLE_vdot_add(char *ip1, npy_intp is1,
+    char *op, npy_intp n, void *NPY_UNUSED(ignore))
 {
     npy_longdouble sum = (npy_longdouble)0.0;
-    const npy_longdouble ip2r = ((npy_longdouble *)ip2)[0];
+    npy_longdouble arrmean[1];
+    arrmean[0] = (npy_longdouble)0.0;
     npy_intp i;
 
+    LONGDOUBLE_calc_sum(ip1, is1, n, arrmean);
+    arrmean[0] /= n;
 
     for (i = 0; i < n; i++, ip1 += is1) {
-        const npy_longdouble ip1r = ((npy_longdouble *)ip1)[0] + ip2r;
-
+        const npy_longdouble ip1r = ((npy_longdouble *)ip1)[0] - arrmean[0];
         sum += ip1r * ip1r;
     }
     ((npy_longdouble *)op)[0] = sum;
@@ -117,19 +231,23 @@ LONGDOUBLE_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
  * All data is assumed aligned.
  */
 NPY_NO_EXPORT void
-CFLOAT_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
-    char *op, npy_intp n, void *NPY_UNUSED(ignore), npy_intp axis)
+CFLOAT_vdot_add(char *ip1, npy_intp is1,
+    char *op, npy_intp n, void *NPY_UNUSED(ignore))
 {
     float sumr = (float)0.0;
     float sumi = (float)0.0;
-    const float ip2r = ((float *)ip2)[0];
-    const float ip2i = ((float *)ip2)[1];
+    float arrmean[2];
+    arrmean[0] = (float)0.0;
+    arrmean[1] = (float)0.0;
     npy_intp i;
 
+    CFLOAT_calc_sum(ip1, is1, n, arrmean);
+    arrmean[0] /= n;
+    arrmean[1] /= n;
 
     for (i = 0; i < n; i++, ip1 += is1) {
-        const float ip1r = ((float *)ip1)[0] + ip2r;
-        const float ip1i = ((float *)ip1)[1] + ip2i;
+        const float ip1r = ((float *)ip1)[0] - arrmean[0];
+        const float ip1i = ((float *)ip1)[1] - arrmean[1];
 
         sumr += ip1r * ip1r + ip1i * ip1i;
         sumi += ip1r * ip1i - ip1i * ip1r;
@@ -143,19 +261,24 @@ CFLOAT_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
  * All data is assumed aligned.
  */
 NPY_NO_EXPORT void
-CDOUBLE_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
-             char *op, npy_intp n, void *NPY_UNUSED(ignore), npy_intp axis)
+CDOUBLE_vdot_add(char *ip1, npy_intp is1,
+             char *op, npy_intp n, void *NPY_UNUSED(ignore))
 {
     double sumr = (double)0.0;
     double sumi = (double)0.0;
-
-    const double ip2r = ((double *)ip2)[0];
-    const double ip2i = ((double *)ip2)[1];
+    double arrmean[2];
+    arrmean[0] = (double)0.0;
+    arrmean[1] = (double)0.0;
     npy_intp i;
 
+    CDOUBLE_calc_sum(ip1, is1, n, arrmean);
+    arrmean[0] /= n;
+    arrmean[1] /= n;
+
+
     for (i = 0; i < n; i++, ip1 += is1) {
-        const double ip1r = ((double *)ip1)[0] + ip2r;
-        const double ip1i = ((double *)ip1)[1] + ip2i;
+        const double ip1r = ((double *)ip1)[0] - arrmean[0];
+        const double ip1i = ((double *)ip1)[1] - arrmean[1];
 
         sumr += ip1r * ip1r + ip1i * ip1i;
         sumi += ip1r * ip1i - ip1i * ip1r;
@@ -170,24 +293,27 @@ CDOUBLE_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
  * All data is assumed aligned.
  */
 NPY_NO_EXPORT void
-CLONGDOUBLE_vdot_add(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
-                 char *op, npy_intp n, void *NPY_UNUSED(ignore), npy_intp axis)
+CLONGDOUBLE_vdot_add(char *ip1, npy_intp is1,
+                 char *op, npy_intp n, void *NPY_UNUSED(ignore))
 {
     npy_longdouble tmpr = 0.0L;
     npy_longdouble tmpi = 0.0L;
-
-    const npy_longdouble ip2r = ((npy_longdouble *)ip2)[0];
-    const npy_longdouble ip2i = ((npy_longdouble *)ip2)[1];
+    npy_longdouble arrmean[2];
+    arrmean[0] = (npy_longdouble)0.0L;
+    arrmean[1] = (npy_longdouble)0.0L;
     npy_intp i;
 
+    CLONGDOUBLE_calc_sum(ip1, is1, n, arrmean);
+    arrmean[0] /= n;
+    arrmean[1] /= n;
+
     for (i = 0; i < n; i++, ip1 += is1) {
-        const npy_longdouble ip1r = ((npy_longdouble *)ip1)[0] + ip2r;
-        const npy_longdouble ip1i = ((npy_longdouble *)ip1)[1] + ip2i;
+        const npy_longdouble ip1r = ((npy_longdouble *)ip1)[0] - arrmean[0];
+        const npy_longdouble ip1i = ((npy_longdouble *)ip1)[1] - arrmean[1];
 
         tmpr += ip1r * ip1r + ip1i * ip1i;
         tmpi += ip1r * ip1i - ip1i * ip1r;
     }
-
 
     ((npy_longdouble *)op)[0] = tmpr;
     ((npy_longdouble *)op)[1] = tmpi;

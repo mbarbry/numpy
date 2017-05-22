@@ -2316,42 +2316,34 @@ fail:
 
 
 static PyObject *
-array_vdot_add(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *kwds)
+array_vdot_add(PyObject *NPY_UNUSED(dummy), PyObject *args)
 {
     int typenum;
-    char *ip1, *ip2, *op;
-    npy_intp n, stride1, stride2;
-    PyObject *op1, *op2;
+    char *ip1, *op;
+    npy_intp n, stride1;
+    PyObject *op1;
     npy_intp newdimptr[1] = {-1};
-    npy_intp newdimptr_ip2[1] = {-1};
     PyArray_Dims newdims = {newdimptr, 1};
-    PyArray_Dims newdims_ip2 = {newdimptr_ip2, 1};
-    PyArrayObject *ap1 = NULL, *ap2  = NULL, *ret = NULL;
+    PyArrayObject *ap1 = NULL, *ret = NULL;
     PyArray_Descr *type;
     PyArray_DotFuncAdd *vdot_add;
     NPY_BEGIN_THREADS_DEF;
-    int axis = 0;
-    static char *kwlist[] = {"seq1", "seq2", "axis", NULL};
 
+    /*
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|O&:vdot_add", kwlist, &op1, &op2,
           PyArray_AxisConverter, &axis)) {
         return NULL;
     }
-    /*
-    if (!PyArg_ParseTuple(args, "OO:vdot_add", &op1, &op2)) {
+    */
+    if (!PyArg_ParseTuple(args, "O:vdot_add", &op1)) {
         return NULL;
     }
-    */
-
-
-    printf("axis = %d\n", axis);
 
     /*
      * Conjugating dot product using the BLAS for vectors.
      * Flattens both op1 and op2 before dotting.
      */
     typenum = PyArray_ObjectType(op1, 0);
-    typenum = PyArray_ObjectType(op2, typenum);
     type = PyArray_DescrFromType(typenum);
 
     Py_INCREF(type);
@@ -2369,29 +2361,16 @@ array_vdot_add(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *kwds)
     Py_DECREF(ap1);
     ap1 = (PyArrayObject *)op1;
 
-    ap2 = (PyArrayObject *)PyArray_FromAny(op2, type, 0, 0, 0, NULL);
-    if (ap2 == NULL) {
-        goto fail;
-    }
-    op2 = PyArray_Newshape(ap2, &newdims_ip2, NPY_CORDER);
-    if (op2 == NULL) {
-        goto fail;
-    }
-    Py_DECREF(ap2);
-    ap2 = (PyArrayObject *)op2;
-
 
     /* array scalar output */
-    ret = new_array_for_sum(ap1, ap2, NULL, 0, (npy_intp *)NULL, typenum, NULL);
+    ret = new_array_for_sum(ap1, ap1, NULL, 0, (npy_intp *)NULL, typenum, NULL);
     if (ret == NULL) {
         goto fail;
     }
 
     n = PyArray_DIM(ap1, 0);
     stride1 = PyArray_STRIDE(ap1, 0);
-    stride2 = PyArray_STRIDE(ap2, 0);
     ip1 = PyArray_DATA(ap1);
-    ip2 = PyArray_DATA(ap2);
     op = PyArray_DATA(ret);
 
     switch (typenum) {
@@ -2438,20 +2417,18 @@ array_vdot_add(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *kwds)
     }
 
     if (n < 500) {
-        vdot_add(ip1, stride1, ip2, stride2, op, n, NULL, axis);
+        vdot_add(ip1, stride1, op, n, NULL);
     }
     else {
         NPY_BEGIN_THREADS_DESCR(type);
-        vdot_add(ip1, stride1, ip2, stride2, op, n, NULL, axis);
+        vdot_add(ip1, stride1, op, n, NULL);
         NPY_END_THREADS_DESCR(type);
     }
 
     Py_XDECREF(ap1);
-    Py_XDECREF(ap2);
     return PyArray_Return(ret);
 fail:
     Py_XDECREF(ap1);
-    Py_XDECREF(ap2);
     Py_XDECREF(ret);
     return NULL;
 }
