@@ -395,6 +395,9 @@ typedef int (PyArray_ArgFunc)(void*, npy_intp, npy_intp*, void *);
 typedef void (PyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *,
                                npy_intp, void *);
 
+typedef void (PyArray_SumSquareShiftFunc)(void *, npy_intp, void *,
+                               npy_intp, void *);
+
 typedef void (PyArray_VectorUnaryFunc)(void *, void *, npy_intp, void *,
                                        void *);
 
@@ -478,6 +481,13 @@ typedef struct {
          * Can be NULL
          */
         PyArray_DotFunc *dotfunc;
+
+        /*
+         * Function to compute Sum of shifted square
+         * Can be NULL
+         */
+        PyArray_SumSquareShiftFunc *sumsquareshiftfunc;
+
 
         /*
          * Function to scan an ASCII file and

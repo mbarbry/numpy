@@ -2201,6 +2201,82 @@ array_matrixproduct(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject* kwds)
     return PyArray_Return(ret);
 }
 
+static PyObject *
+array_sumsquareshift(PyObject *NPY_UNUSED(dummy), PyObject *args)
+{
+    int typenum;
+    char *ip1, *op;
+    npy_intp n, stride1;
+    PyObject *op1;
+    npy_intp newdimptr[1] = {-1};
+    PyArray_Dims newdims = {newdimptr, 1};
+    PyArrayObject *ap1 = NULL, *ret = NULL;
+    PyArray_Descr *type;
+    PyArray_SumSquareShiftFunc *sumsquareshift;
+    NPY_BEGIN_THREADS_DEF;
+
+    if (!PyArg_ParseTuple(args, "O:sumsquareshift", &op1)) {
+        return NULL;
+    }
+
+    /*
+     * Conjugating dot product using the BLAS for vectors.
+     * Flattens both op1 and op2 before dotting.
+     */
+    typenum = PyArray_ObjectType(op1, 0);
+
+    type = PyArray_DescrFromType(typenum);
+    Py_INCREF(type);
+    ap1 = (PyArrayObject *)PyArray_FromAny(op1, type, 0, 0, 0, NULL);
+    if (ap1 == NULL) {
+        Py_DECREF(type);
+        goto fail;
+    }
+
+    op1 = PyArray_Newshape(ap1, &newdims, NPY_CORDER);
+    if (op1 == NULL) {
+        Py_DECREF(type);
+        goto fail;
+    }
+    Py_DECREF(ap1);
+    ap1 = (PyArrayObject *)op1;
+
+    /* array scalar output */
+    ret = new_array_for_sum(ap1, ap1, NULL, 0, (npy_intp *)NULL, typenum, NULL);
+    if (ret == NULL) {
+        goto fail;
+    }
+
+    n = PyArray_DIM(ap1, 0);
+    stride1 = PyArray_STRIDE(ap1, 0);
+    ip1 = PyArray_DATA(ap1);
+    op = PyArray_DATA(ret);
+
+    sumsquareshift = type->f->sumsquareshiftfunc;
+    if (sumsquareshift == NULL) {
+        PyErr_SetString(PyExc_ValueError,
+                "function not available for this data type");
+        goto fail;
+    }
+
+    if (n < 500) {
+        sumsquareshift(ip1, stride1, op, n, NULL);
+    }
+    else {
+        NPY_BEGIN_THREADS_DESCR(type);
+        sumsquareshift(ip1, stride1, op, n, NULL);
+        NPY_END_THREADS_DESCR(type);
+    }
+
+    Py_XDECREF(ap1);
+    return PyArray_Return(ret);
+fail:
+    Py_XDECREF(ap1);
+    Py_XDECREF(ret);
+    return NULL;
+}
+
+
 
 static PyObject *
 array_vdot(PyObject *NPY_UNUSED(dummy), PyObject *args)
@@ -4155,6 +4231,9 @@ static struct PyMethodDef array_module_methods[] = {
         METH_VARARGS | METH_KEYWORDS, NULL},
     {"vdot",
         (PyCFunction)array_vdot,
+        METH_VARARGS | METH_KEYWORDS, NULL},
+    {"sumsquareshift",
+        (PyCFunction)array_sumsquareshift,
         METH_VARARGS | METH_KEYWORDS, NULL},
     {"matmul",
         (PyCFunction)array_matmul,

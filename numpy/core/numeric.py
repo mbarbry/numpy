@@ -17,7 +17,7 @@ from .multiarray import (
     inner, int_asbuffer, lexsort, matmul, may_share_memory,
     min_scalar_type, ndarray, nditer, nested_iters, promote_types,
     putmask, result_type, set_numeric_ops, shares_memory, vdot, where,
-    zeros, normalize_axis_index)
+    zeros, normalize_axis_index, sumsquareshift)
 if sys.version_info[0] < 3:
     from .multiarray import newbuffer, getbuffer
 
@@ -53,7 +53,7 @@ __all__ = [
     'min_scalar_type', 'result_type', 'asarray', 'asanyarray',
     'ascontiguousarray', 'asfortranarray', 'isfortran', 'empty_like',
     'zeros_like', 'ones_like', 'correlate', 'convolve', 'inner', 'dot',
-    'outer', 'vdot', 'roll',
+    'outer', 'vdot', 'sumsquareshift', 'roll',
     'rollaxis', 'moveaxis', 'cross', 'tensordot', 'array2string',
     'get_printoptions', 'set_printoptions', 'array_repr', 'array_str',
     'set_string_function', 'little_endian', 'require', 'fromiter',

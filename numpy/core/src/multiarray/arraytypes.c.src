@@ -3268,6 +3268,256 @@ static int
 
 #define VOID_argmin NULL
 
+/*
+ *****************************************************************************
+ **                         sumsquareshift                                **
+ *****************************************************************************
+ */
+
+/*
+ * sumsquareshift means inner product
+ */
+
+
+/**begin repeat
+ *
+ * #name = FLOAT, DOUBLE#
+ * #type = npy_float, npy_double#
+ * #prefix = s, d#
+ */
+
+void @name@_calc_sum(char *ip1, npy_intp is1, npy_intp n, @type@ *arrmean)
+{
+  npy_intp i;
+
+  for (i = 0; i < n; i++, ip1 += is1) {
+    const @type@ ip1r = *((@type@ *)ip1);
+    arrmean[0] += ip1r;
+  }
+}
+
+NPY_NO_EXPORT void
+@name@_sumsquareshift(char *ip1, npy_intp is1, char *op,
+           npy_intp n, void *NPY_UNUSED(ignore))
+{
+      @type@ sum = (@type@)0;  /* could make this double */
+      npy_intp i;
+      @type@ arrmean[1];
+      arrmean[0] = (@type@)0;
+
+      @name@_calc_sum(ip1, is1, n, arrmean);
+      arrmean[0] /= n;
+
+      for (i = 0; i < n; i++, ip1 += is1) {
+          const @type@ ip1r = *((@type@ *)ip1) - arrmean[0];
+
+          sum += ip1r * ip1r;
+      }
+      *((@type@ *)op) = sum;
+}
+/**end repeat**/
+
+/**begin repeat
+ *
+ * #name = CFLOAT, CDOUBLE#
+ * #ctype = npy_cfloat, npy_cdouble#
+ * #type = npy_float, npy_double#
+ * #prefix = c, z#
+ */
+
+void @name@_calc_sum(char *ip1, npy_intp is1, npy_intp n, @type@ *arrmean)
+{
+  npy_intp i;
+
+  for (i = 0; i < n; i++, ip1 += is1) {
+    const @type@ ip1r = ((@type@ *)ip1)[0];
+    const @type@ ip1i = ((@type@ *)ip1)[1];
+    arrmean[0] += ip1r;
+    arrmean[1] += ip1i;
+  }
+}
+
+
+NPY_NO_EXPORT void
+@name@_sumsquareshift(char *ip1, npy_intp is1,
+           char *op, npy_intp n, void *NPY_UNUSED(ignore))
+{
+      @type@ sumr = (@type@)0.0;
+      @type@ sumi = (@type@)0.0;
+      npy_intp i;
+      @type@ arrmean[2];
+      arrmean[0] = (@type@)0;
+      arrmean[1] = (@type@)0;
+
+      @name@_calc_sum(ip1, is1, n, arrmean);
+      arrmean[0] /= n;
+      arrmean[1] /= n;
+
+      for (i = 0; i < n; i++, ip1 += is1) {
+          const @type@ ip1r = ((@type@ *)ip1)[0] - arrmean[0];
+          const @type@ ip1i = ((@type@ *)ip1)[1] - arrmean[1];
+
+          sumr += ip1r * ip1r - ip1i * ip1i;
+          sumi += ip1r * ip1i + ip1i * ip1r;
+      }
+      ((@type@ *)op)[0] = sumr;
+      ((@type@ *)op)[1] = sumi;
+}
+
+/**end repeat**/
+
+void BOOL_calc_sum(char *ip1, npy_intp is1, npy_intp n, npy_double *arrmean)
+{
+  npy_intp i;
+
+  for (i = 0; i < n; i++, ip1 += is1) {
+    if (*((npy_bool *)ip1)  != 0){
+      arrmean[0] += 1;
+    }
+  }
+}
+
+static void
+BOOL_sumsquareshift(char *ip1, npy_intp is1, char *op, npy_intp n,
+         void *NPY_UNUSED(ignore))
+{
+    npy_double sumr = (npy_intp)0.0;
+    npy_intp i;
+    npy_double arrmean[1];
+    arrmean[0] = (npy_double)0;
+
+    BOOL_calc_sum(ip1, is1, n, arrmean);
+    arrmean[0] /= n;
+ 
+    for (i = 0; i < n; i++, ip1 += is1) {
+        if ((*((npy_bool *)ip1) != 0)) {
+          sumr += (1 - arrmean[0]) * (1 - arrmean[0]);
+        }
+    }
+    *((npy_double *)op) = sumr;
+}
+
+/**begin repeat
+ *
+ * #name = BYTE, UBYTE, SHORT, USHORT, INT, UINT,
+ *         LONG, ULONG, LONGLONG, ULONGLONG,
+ *         LONGDOUBLE, DATETIME, TIMEDELTA#
+ * #type = npy_byte, npy_ubyte, npy_short, npy_ushort, npy_int, npy_uint,
+ *         npy_long, npy_ulong, npy_longlong, npy_ulonglong,
+ *         npy_longdouble, npy_datetime, npy_timedelta#
+ * #out = npy_long, npy_ulong, npy_double, npy_ulong, npy_double, npy_ulong,
+ *        npy_double, npy_ulong, npy_double, npy_ulonglong,
+ *        npy_double, npy_datetime, npy_timedelta#
+ */
+
+void @name@_calc_sum(char *ip1, npy_intp is1, npy_intp n, @out@ *arrmean)
+{
+  npy_intp i;
+
+  for (i = 0; i < n; i++, ip1 += is1) {
+    const @type@ ip1r = (@out@)(*((@type@ *)ip1));
+    arrmean[0] += ip1r;
+  }
+}
+
+static void
+@name@_sumsquareshift(char *ip1, npy_intp is1, char *op, npy_intp n,
+           void *NPY_UNUSED(ignore))
+{
+    @out@ tmp = (@out@)0;
+    @out@ arrmean[1];
+    arrmean[0] = (@out@)0;
+    npy_intp i;
+
+    @name@_calc_sum(ip1, is1, n, arrmean);
+    arrmean[0] /= n;
+    printf("arrmean = %f\n", arrmean[0]);
+
+    for (i = 0; i < n; i++, ip1 += is1) {
+        tmp += ((@out@)(*((@type@ *)ip1)) - arrmean[0])*
+               ((@out@)(*((@type@ *)ip1)) - arrmean[0]);
+    }
+    printf("tmp = %f\n", tmp);
+    *((@out@ *)op) = tmp;
+}
+/**end repeat**/
+
+static void
+HALF_sumsquareshift(char *ip1, npy_intp is1, char *op,
+         npy_intp n, void *NPY_UNUSED(ignore))
+{
+    float tmp = 0.0f;
+    npy_intp i;
+
+    for (i = 0; i < n; i++, ip1 += is1) {
+        tmp += npy_half_to_float(*((npy_half *)ip1)) *
+               npy_half_to_float(*((npy_half *)ip1));
+    }
+    *((npy_half *)op) = npy_float_to_half(tmp);
+}
+
+static void
+CLONGDOUBLE_sumsquareshift(char *ip1, npy_intp is1,
+                            char *op, npy_intp n, void *NPY_UNUSED(ignore))
+{
+    npy_longdouble tmpr = 0.0L;
+    npy_longdouble tmpi = 0.0L;
+    npy_intp i;
+
+    for (i = 0; i < n; i++, ip1 += is1) {
+        const npy_longdouble ip1r = ((npy_longdouble *)ip1)[0];
+        const npy_longdouble ip1i = ((npy_longdouble *)ip1)[1];
+
+        tmpr += ip1r * ip1r - ip1i * ip1i;
+        tmpi += ip1r * ip1i + ip1i * ip1r;
+    }
+    ((npy_longdouble *)op)[0] = tmpr;
+    ((npy_longdouble *)op)[1] = tmpi;
+}
+
+static void
+OBJECT_sumsquareshift(char *ip1, npy_intp is1, char *op, npy_intp n,
+           void *NPY_UNUSED(ignore))
+{
+    /*
+     * ALIGNMENT NOTE: np.sumsquareshift, np.inner etc. enforce that the array is
+     * BEHAVED before getting to this point, so unaligned pointers aren't
+     * handled here.
+     */
+    npy_intp i;
+    PyObject *tmp1, *tmp2, *tmp = NULL;
+    PyObject **tmp3;
+    for (i = 0; i < n; i++, ip1 += is1) {
+        if ((*((PyObject **)ip1) == NULL)) {
+            tmp1 = Py_False;
+            Py_INCREF(Py_False);
+        }
+        else {
+            tmp1 = PyNumber_Multiply(*((PyObject **)ip1), *((PyObject **)ip1));
+            if (!tmp1) {
+                Py_XDECREF(tmp);
+                return;
+            }
+        }
+        if (i == 0) {
+            tmp = tmp1;
+        }
+        else {
+            tmp2 = PyNumber_Add(tmp, tmp1);
+            Py_XDECREF(tmp);
+            Py_XDECREF(tmp1);
+            if (!tmp2) {
+                return;
+            }
+            tmp = tmp2;
+        }
+    }
+    tmp3 = (PyObject**) op;
+    tmp2 = *tmp3;
+    *((PyObject **)op) = tmp;
+    Py_XDECREF(tmp2);
+}
+
 
 /*
  *****************************************************************************
@@ -4150,6 +4400,7 @@ static PyArray_ArrFuncs _Py@NAME@_ArrFuncs = {
     (PyArray_CompareFunc*)@from@_compare,
     (PyArray_ArgFunc*)@from@_argmax,
     (PyArray_DotFunc*)NULL,
+    (PyArray_SumSquareShiftFunc*)NULL,
     (PyArray_ScanFunc*)@from@_scan,
     @from@_fromstr,
     (PyArray_NonzeroFunc*)@from@_nonzero,
@@ -4292,6 +4543,7 @@ static PyArray_ArrFuncs _Py@NAME@_ArrFuncs = {
     (PyArray_CompareFunc*)@from@_compare,
     (PyArray_ArgFunc*)@from@_argmax,
     (PyArray_DotFunc*)@from@_dot,
+    (PyArray_SumSquareShiftFunc*)@from@_sumsquareshift,
     (PyArray_ScanFunc*)@from@_scan,
     @from@_fromstr,
     (PyArray_NonzeroFunc*)@from@_nonzero,
