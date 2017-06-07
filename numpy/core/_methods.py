@@ -99,22 +99,35 @@ def _var(a, axis=None, dtype=None, out=None, ddof=0, keepdims=False):
     # Compute the mean.
     # Note that if dtype is not of inexact type then arraymean will
     # not be either.
-    arrmean = umr_sum(arr, axis, dtype, keepdims=True)
-    if isinstance(arrmean, mu.ndarray):
-        arrmean = um.true_divide(
-                arrmean, rcount, out=arrmean, casting='unsafe', subok=False)
-    else:
-        arrmean = arrmean.dtype.type(arrmean / rcount)
+    #arrmean = umr_sum(arr, axis, dtype, keepdims=True)
+    #if isinstance(arrmean, mu.ndarray):
+    #    arrmean = um.true_divide(
+    #            arrmean, rcount, out=arrmean, casting='unsafe', subok=False)
+    #else:
+    #    arrmean = arrmean.dtype.type(arrmean / rcount)
 
     # Compute sum of squared deviations from mean
     # Note that x may not be inexact and that we need it to be an array,
     # not a scalar.
-    x = asanyarray(arr - arrmean)
-    if issubclass(arr.dtype.type, nt.complexfloating):
-        x = um.multiply(x, um.conjugate(x), out=x).real
+    #x = asanyarray(arr - arrmean)
+    #if issubclass(arr.dtype.type, nt.complexfloating):
+    #    x = um.multiply(x, um.conjugate(x), out=x).real
+    #else:
+    #    x = um.multiply(x, x, out=x)
+    #ret = umr_sum(x, axis, dtype, out, keepdims)
+
+    # Compute sum of squared deviations from mean
+    if axis is None or axis == ():
+        ret = mu.sumsquareshift(arr)
     else:
-        x = um.multiply(x, x, out=x)
-    ret = umr_sum(x, axis, dtype, out, keepdims)
+        axis = asarray(normalize_axis_tuple(axis, arr.ndim, 'axis'))
+        if axis.size==1:
+            ret = np.apply_along_axis(mu.sumsquareshift, axis[0], arr)
+        else:
+            ret =  []
+            for ax in axis:
+                ret.append(np.apply_along_axis(mu.sumsquareshift, ax, arr))
+        ret = np.array(ret)
 
     # Compute degrees of freedom and make sure it is not negative.
     rcount = max([rcount - ddof, 0])

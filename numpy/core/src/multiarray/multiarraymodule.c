@@ -2204,7 +2204,7 @@ array_matrixproduct(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject* kwds)
 static PyObject *
 array_sumsquareshift(PyObject *NPY_UNUSED(dummy), PyObject *args)
 {
-    int typenum;
+    int typenum, typenum_out;
     char *ip1, *op;
     npy_intp n, stride1;
     PyObject *op1;
@@ -2219,10 +2219,6 @@ array_sumsquareshift(PyObject *NPY_UNUSED(dummy), PyObject *args)
         return NULL;
     }
 
-    /*
-     * Conjugating dot product using the BLAS for vectors.
-     * Flattens both op1 and op2 before dotting.
-     */
     typenum = PyArray_ObjectType(op1, 0);
 
     type = PyArray_DescrFromType(typenum);
@@ -2241,8 +2237,19 @@ array_sumsquareshift(PyObject *NPY_UNUSED(dummy), PyObject *args)
     Py_DECREF(ap1);
     ap1 = (PyArrayObject *)op1;
 
+    switch (typenum) {
+        case NPY_FLOAT:
+          typenum_out = NPY_FLOAT;
+          break;
+        case NPY_CFLOAT:
+          typenum_out = NPY_FLOAT;
+          break;
+        default:
+          typenum_out = NPY_DOUBLE;
+    }
+
     /* array scalar output */
-    ret = new_array_for_sum(ap1, ap1, NULL, 0, (npy_intp *)NULL, typenum, NULL);
+    ret = new_array_for_sum(ap1, ap1, NULL, 0, (npy_intp *)NULL, typenum_out, NULL);
     if (ret == NULL) {
         goto fail;
     }
